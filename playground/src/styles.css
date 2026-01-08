@@ -1,0 +1,6 @@
+* { box-sizing: border-box; }
+body { font-family: system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue'; padding: 24px; }
+.app { color: #222 }
+.slide { background: #eee; border-radius: 8px; padding: 40px; text-align: center; margin: 8px; }
+.controls { display: flex; gap: 8px; justify-content: center; margin-top: 12px; }
+.my-glide { outline: none; }
