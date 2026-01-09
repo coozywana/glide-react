@@ -1,4 +1,10 @@
+
 # glide-react
+
+[![npm version](https://img.shields.io/npm/v/glide-react?style=flat-square)](https://www.npmjs.com/package/glide-react)
+[![npm downloads](https://img.shields.io/npm/dm/glide-react?style=flat-square)](https://www.npmjs.com/package/glide-react)
+
+Official npm package: [glide-react](https://www.npmjs.com/package/glide-react)
 
 A modern, minimalistic, lightweight React carousel component built with TypeScript, hooks, and functional components.
 
