@@ -1,6 +1,6 @@
 {
   "name": "glide-react",
-  "version": "1.0.0",
+  "version": "2.0.0",
   "description": "A modern, minimalistic, lightweight React carousel component built with TypeScript",
   "main": "dist/index.js",
   "module": "dist/index.mjs",
