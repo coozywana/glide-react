@@ -6,6 +6,9 @@
 
 Official npm package: [glide-react](https://www.npmjs.com/package/glide-react)
 
+[![bundle size](https://img.shields.io/bundlephobia/minzip/glide-react?style=flat-square)](https://bundlephobia.com/result?p=glide-react)
+[![license](https://img.shields.io/github/license/coozywana/glide-react?style=flat-square)](https://github.com/coozywana/glide-react/blob/main/LICENSE)
+
 A modern, minimalistic, lightweight React carousel component built with TypeScript, hooks, and functional components.
 
 ## Features
