@@ -18,7 +18,7 @@ function VerticalMode() {
       <p className="description">
         Slides move vertically instead of horizontally.
       </p>
-      <div className="slider-container">
+      <div className="slider-container vertical">
         <Glide {...settings}>
           <div><h3>1</h3></div>
           <div><h3>2</h3></div>

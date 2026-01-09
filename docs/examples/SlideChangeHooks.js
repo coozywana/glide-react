@@ -14,10 +14,10 @@ function SlideChangeHooks() {
     slidesToShow: 1,
     slidesToScroll: 1,
     beforeChange: (current, next) => {
-      setBeforeChangeInfo(`Before change: ${current} → ${next}`);
+      setBeforeChangeInfo(`Before change: ${current + 1} → ${next + 1}`);
     },
     afterChange: (current) => {
-      setAfterChangeInfo(`After change: Now on slide ${current}`);
+      setAfterChangeInfo(`After change: Now on slide ${current + 1}`);
     },
     onInit: () => {
       console.log('Slider initialized');

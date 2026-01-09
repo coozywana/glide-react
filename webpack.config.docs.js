@@ -35,7 +35,10 @@ module.exports = (env, argv) => {
       ]
     },
     resolve: {
-      extensions: ['.js', '.jsx', '.ts', '.tsx', '.json']
+      extensions: ['.js', '.jsx', '.ts', '.tsx', '.json'],
+      alias: {
+        'glide-react': path.resolve(__dirname, 'src/index.tsx')
+      }
     },
     plugins: [
       new HtmlWebpackPlugin({

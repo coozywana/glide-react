@@ -231,6 +231,127 @@ export const Glide = forwardRef<GlideRef, GlideProps>(function Glide(props, ref)
   const slideCount = Children.count(children);
 
   // ============================================================================
+  // Responsive Breakpoint Handling
+  // ============================================================================
+
+  const [breakpoint, setBreakpoint] = React.useState<number | null>(null);
+
+  useEffect(() => {
+    if (!canUseDOM() || !settings.responsive) return;
+
+    const responsiveSettings = settings.responsive;
+    const breakpoints = responsiveSettings.map(bp => bp.breakpoint).sort((a, b) => a - b);
+    const mediaQueryListeners: Array<{ mql: MediaQueryList; listener: (e: MediaQueryListEvent) => void }> = [];
+
+    // Create media queries for each breakpoint
+    breakpoints.forEach((bp, index) => {
+      let query: string;
+      
+      if (index === 0) {
+        // First breakpoint: from 0 to breakpoint
+        query = `(max-width: ${bp}px)`;
+      } else {
+        // Subsequent breakpoints: from previous+1 to current
+        query = `(min-width: ${breakpoints[index - 1] + 1}px) and (max-width: ${bp}px)`;
+      }
+
+      const mql = window.matchMedia(query);
+      const listener = (e: MediaQueryListEvent) => {
+        if (e.matches) {
+          setBreakpoint(bp);
+        }
+      };
+
+      mql.addEventListener('change', listener);
+      mediaQueryListeners.push({ mql, listener });
+
+      // Check initial state
+      if (mql.matches) {
+        setBreakpoint(bp);
+      }
+    });
+
+    // Create media query for full screen (above largest breakpoint)
+    const maxBreakpoint = breakpoints[breakpoints.length - 1];
+    const fullScreenQuery = `(min-width: ${maxBreakpoint + 1}px)`;
+    const fullScreenMql = window.matchMedia(fullScreenQuery);
+    const fullScreenListener = (e: MediaQueryListEvent) => {
+      if (e.matches) {
+        setBreakpoint(null);
+      }
+    };
+
+    fullScreenMql.addEventListener('change', fullScreenListener);
+    mediaQueryListeners.push({ mql: fullScreenMql, listener: fullScreenListener });
+
+    // Check initial state for full screen
+    if (fullScreenMql.matches) {
+      setBreakpoint(null);
+    }
+
+    return () => {
+      mediaQueryListeners.forEach(({ mql, listener }) => {
+        mql.removeEventListener('change', listener);
+      });
+    };
+  }, [settings.responsive]);
+
+  // Merge responsive settings with base settings
+  const responsiveSettings = useMemo(() => {
+    let merged;
+    
+    if (!breakpoint || !settings.responsive) {
+      merged = settings;
+    } else {
+      const matchedBreakpoint = settings.responsive.find(bp => bp.breakpoint === breakpoint);
+      if (!matchedBreakpoint) {
+        merged = settings;
+      } else if (matchedBreakpoint.settings === 'disabled') {
+        merged = { ...settings, slidesToShow: 1, slidesToScroll: 1 };
+      } else {
+        merged = { ...settings, ...matchedBreakpoint.settings };
+      }
+    }
+
+    // Force slidesToScroll = 1 if centerMode is on
+    if (merged.centerMode && merged.slidesToScroll > 1) {
+      if (process.env.NODE_ENV !== 'production') {
+        console.warn(
+          `slidesToScroll should be equal to 1 in centerMode, you are using ${merged.slidesToScroll}`
+        );
+      }
+      merged = { ...merged, slidesToScroll: 1 };
+    }
+
+    // Force slidesToShow = 1 and slidesToScroll = 1 if fade mode is on
+    if (merged.fade) {
+      if (merged.slidesToShow > 1 && process.env.NODE_ENV !== 'production') {
+        console.warn(
+          `slidesToShow should be equal to 1 when fade is true, you're using ${merged.slidesToShow}`
+        );
+      }
+      if (merged.slidesToScroll > 1 && process.env.NODE_ENV !== 'production') {
+        console.warn(
+          `slidesToScroll should be equal to 1 when fade is true, you're using ${merged.slidesToScroll}`
+        );
+      }
+      merged = { ...merged, slidesToShow: 1, slidesToScroll: 1 };
+    }
+
+    return merged;
+  }, [breakpoint, settings]);
+
+  // Use responsive settings instead of base settings
+  const {
+    slidesToShow: responsiveSlidesToShow,
+    slidesToScroll: responsiveSlidesToScroll,
+    infinite: responsiveInfinite,
+    centerMode: responsiveCenterMode,
+    dots: responsiveDots,
+    arrows: responsiveArrows,
+  } = responsiveSettings;
+
+  // ============================================================================
   // Track Hook
   // ============================================================================
 
@@ -245,10 +366,10 @@ export const Glide = forwardRef<GlideRef, GlideProps>(function Glide(props, ref)
   } = useTrack({
     currentSlide,
     slideCount,
-    slidesToShow,
-    slidesToScroll,
-    infinite,
-    centerMode,
+    slidesToShow: responsiveSlidesToShow,
+    slidesToScroll: responsiveSlidesToScroll,
+    infinite: responsiveInfinite,
+    centerMode: responsiveCenterMode,
     centerPadding,
     listWidth: listWidth || 0,
     listHeight: listHeight || 0,
@@ -271,66 +392,76 @@ export const Glide = forwardRef<GlideRef, GlideProps>(function Glide(props, ref)
   // ============================================================================
 
   useEffect(() => {
-    if (!canUseDOM() || !listRef.current) return;
+    if (!canUseDOM()) return;
 
-    const updateDimensions = () => {
+    // Use a small delay to ensure refs are attached
+    const timeoutId = setTimeout(() => {
       if (!listRef.current) return;
 
-      const newListWidth = getWidth(listRef.current);
-      const newListHeight = getHeight(listRef.current);
-      const firstSlide = listRef.current.querySelector('[data-index="0"]') as HTMLElement;
-      const newSlideHeight = firstSlide ? getHeight(firstSlide) : null;
+      const updateDimensions = () => {
+        if (!listRef.current) return;
 
-      dispatch({
-        type: 'INIT',
-        payload: {
-          listWidth: newListWidth,
-          listHeight: newListHeight,
-          slideHeight: newSlideHeight,
-          slideCount,
-        },
-      });
-    };
+        const newListWidth = getWidth(listRef.current);
+        const firstSlide = listRef.current.querySelector('[data-index="0"]') as HTMLElement;
+        const newSlideHeight = firstSlide ? getHeight(firstSlide) : null;
+        // Calculate listHeight as slideHeight * slidesToShow
+        const newListHeight = newSlideHeight ? newSlideHeight * responsiveSlidesToShow : null;
 
-    // Initial measurement
-    updateDimensions();
+        dispatch({
+          type: 'INIT',
+          payload: {
+            listWidth: newListWidth,
+            listHeight: newListHeight,
+            slideHeight: newSlideHeight,
+            slideCount,
+          },
+        });
+      };
 
-    // Setup resize observer
-    resizeObserverRef.current = new ResizeObserver(updateDimensions);
-    resizeObserverRef.current.observe(listRef.current);
+      // Initial measurement
+      updateDimensions();
 
-    // Call onInit callback
-    onInit?.();
+      // Setup resize observer
+      if (!resizeObserverRef.current && listRef.current) {
+        resizeObserverRef.current = new ResizeObserver(updateDimensions);
+        resizeObserverRef.current.observe(listRef.current);
+      }
+
+      // Call onInit callback
+      if (!initialized) {
+        onInit?.();
+      }
+    }, 0);
 
     return () => {
+      clearTimeout(timeoutId);
       resizeObserverRef.current?.disconnect();
+      resizeObserverRef.current = null;
     };
-  }, [slideCount, onInit]);
+  }, [slideCount, initialized, onInit, responsiveSlidesToShow]);
 
   // ============================================================================
-  // Autoplay
+  // Handle Responsive Settings Changes
   // ============================================================================
 
-  const autoplayIterator = useCallback(() => {
-    if (autoplaying !== 'playing') return;
-    
-    const nextSlideIndex = currentSlide + slidesToScroll;
-    goToSlide(nextSlideIndex);
-  }, [autoplaying, currentSlide, slidesToScroll]);
-
+  // Adjust currentSlide if it's out of bounds when responsive settings change
   useEffect(() => {
-    if (!autoplay || !initialized) return;
+    if (!initialized || !canUseDOM()) return;
 
-    if (autoplaying === 'playing') {
-      autoplayTimerRef.current = setTimeout(autoplayIterator, autoplaySpeed);
+    // If currentSlide is beyond the valid range, adjust it
+    if (currentSlide >= slideCount) {
+      const newSlide = Math.max(0, slideCount - responsiveSlidesToShow);
+      if (newSlide !== currentSlide) {
+        dispatch({
+          type: 'GO_TO_SLIDE',
+          payload: { slide: newSlide, animated: false },
+        });
+      }
     }
 
-    return () => {
-      if (autoplayTimerRef.current) {
-        clearTimeout(autoplayTimerRef.current);
-      }
-    };
-  }, [autoplay, autoplaying, initialized, autoplayIterator, autoplaySpeed]);
+    // Trigger onReInit callback when responsive settings change
+    onReInit?.();
+  }, [responsiveSlidesToShow, responsiveSlidesToScroll, responsiveInfinite, responsiveCenterMode, initialized, slideCount, currentSlide, onReInit]);
 
   // ============================================================================
   // Animation End Handler
@@ -362,7 +493,7 @@ export const Glide = forwardRef<GlideRef, GlideProps>(function Glide(props, ref)
       let targetIndex = slideIndex;
 
       // Handle infinite mode wrapping
-      if (infinite) {
+      if (responsiveInfinite) {
         if (targetIndex < 0) {
           targetIndex = slideCount + targetIndex;
         } else if (targetIndex >= slideCount) {
@@ -370,7 +501,7 @@ export const Glide = forwardRef<GlideRef, GlideProps>(function Glide(props, ref)
         }
       } else {
         // Clamp to valid range
-        targetIndex = clamp(targetIndex, 0, slideCount - slidesToShow);
+        targetIndex = clamp(targetIndex, 0, slideCount - responsiveSlidesToShow);
       }
 
       // Call beforeChange callback
@@ -380,8 +511,8 @@ export const Glide = forwardRef<GlideRef, GlideProps>(function Glide(props, ref)
       if (lazyLoad) {
         const slidesToLoad = getOnDemandLazySlides({
           currentSlide: targetIndex,
-          centerMode,
-          slidesToShow,
+          centerMode: responsiveCenterMode,
+          slidesToShow: responsiveSlidesToShow,
           centerPadding,
           lazyLoadedList,
         });
@@ -402,25 +533,25 @@ export const Glide = forwardRef<GlideRef, GlideProps>(function Glide(props, ref)
     [
       waitForAnimate,
       animating,
-      infinite,
+      responsiveInfinite,
       slideCount,
-      slidesToShow,
+      responsiveSlidesToShow,
       beforeChange,
       currentSlide,
       lazyLoad,
-      centerMode,
+      responsiveCenterMode,
       centerPadding,
       lazyLoadedList,
     ]
   );
 
   const next = useCallback(() => {
-    goToSlide(currentSlide + slidesToScroll);
-  }, [currentSlide, slidesToScroll, goToSlide]);
+    goToSlide(currentSlide + responsiveSlidesToScroll);
+  }, [currentSlide, responsiveSlidesToScroll, goToSlide]);
 
   const prev = useCallback(() => {
-    goToSlide(currentSlide - slidesToScroll);
-  }, [currentSlide, slidesToScroll, goToSlide]);
+    goToSlide(currentSlide - responsiveSlidesToScroll);
+  }, [currentSlide, responsiveSlidesToScroll, goToSlide]);
 
   const goTo = useCallback(
     (index: number, dontAnimate: boolean = false) => {
@@ -436,6 +567,40 @@ export const Glide = forwardRef<GlideRef, GlideProps>(function Glide(props, ref)
   const play = useCallback(() => {
     dispatch({ type: 'SET_AUTOPLAY', payload: 'playing' });
   }, []);
+
+  // ============================================================================
+  // Autoplay Timer
+  // ============================================================================
+
+  const autoplayTick = useCallback(() => {
+    const nextSlideIndex = currentSlide + responsiveSlidesToScroll;
+    goToSlide(nextSlideIndex);
+  }, [currentSlide, responsiveSlidesToScroll, goToSlide]);
+
+  useEffect(() => {
+    if (!autoplay || !initialized) return;
+
+    if (autoplaying === 'playing') {
+      // Clear any existing interval
+      if (autoplayTimerRef.current) {
+        clearInterval(autoplayTimerRef.current);
+      }
+      // Use setInterval with buffer to match expected timing
+      autoplayTimerRef.current = setInterval(autoplayTick, autoplaySpeed + 50) as any;
+    } else {
+      // Clear interval when not playing
+      if (autoplayTimerRef.current) {
+        clearInterval(autoplayTimerRef.current);
+        autoplayTimerRef.current = null;
+      }
+    }
+
+    return () => {
+      if (autoplayTimerRef.current) {
+        clearInterval(autoplayTimerRef.current);
+      }
+    };
+  }, [autoplay, autoplaying, initialized, autoplayTick, autoplaySpeed]);
 
   // ============================================================================
   // Imperative Handle (ref API)
@@ -502,16 +667,16 @@ export const Glide = forwardRef<GlideRef, GlideProps>(function Glide(props, ref)
         swiped,
         swiping,
         slideCount,
-        slidesToScroll,
-        infinite,
+        slidesToScroll: responsiveSlidesToScroll,
+        infinite: responsiveInfinite,
         touchObject,
         swipeEvent,
         listHeight: listHeight || 0,
         listWidth: listWidth || 0,
         slideWidth: calculatedSlideWidth,
         slideHeight: slideHeight || 0,
-        centerMode,
-        slidesToShow,
+        centerMode: responsiveCenterMode,
+        slidesToShow: responsiveSlidesToShow,
         fade,
         disabled,
         variableWidth,
@@ -539,16 +704,16 @@ export const Glide = forwardRef<GlideRef, GlideProps>(function Glide(props, ref)
       swiped,
       swiping,
       slideCount,
-      slidesToScroll,
-      infinite,
+      responsiveSlidesToScroll,
+      responsiveInfinite,
       touchObject,
       swipeEvent,
       listHeight,
       listWidth,
       calculatedSlideWidth,
       slideHeight,
-      centerMode,
-      slidesToShow,
+      responsiveCenterMode,
+      responsiveSlidesToShow,
       fade,
       disabled,
       variableWidth,
@@ -571,13 +736,13 @@ export const Glide = forwardRef<GlideRef, GlideProps>(function Glide(props, ref)
         onSwipe,
         targetSlide,
         currentSlide,
-        infinite,
+        infinite: responsiveInfinite,
         slideCount,
-        slidesToScroll,
-        slidesToShow,
+        slidesToScroll: responsiveSlidesToScroll,
+        slidesToShow: responsiveSlidesToShow,
         slideWidth: calculatedSlideWidth,
         slideHeight: slideHeight || 0,
-        centerMode,
+        centerMode: responsiveCenterMode,
         fade,
         disabled,
         variableWidth,
@@ -621,13 +786,13 @@ export const Glide = forwardRef<GlideRef, GlideProps>(function Glide(props, ref)
       onSwipe,
       targetSlide,
       currentSlide,
-      infinite,
+      responsiveInfinite,
       slideCount,
-      slidesToScroll,
-      slidesToShow,
+      responsiveSlidesToScroll,
+      responsiveSlidesToShow,
       calculatedSlideWidth,
       slideHeight,
-      centerMode,
+      responsiveCenterMode,
       fade,
       disabled,
       variableWidth,
@@ -720,16 +885,31 @@ export const Glide = forwardRef<GlideRef, GlideProps>(function Glide(props, ref)
     [vertical]
   );
 
-  const listStyle: CSSProperties = useMemo(
-    () => ({
+  const listStyle: CSSProperties = useMemo(() => {
+    const style: CSSProperties = {
       position: 'relative',
       display: 'block',
       overflow: 'hidden',
       margin: 0,
       padding: 0,
-    }),
-    []
-  );
+    };
+
+    // Apply height for vertical mode
+    if (vertical && listHeight) {
+      style.height = listHeight;
+    }
+
+    // Apply centerPadding to list
+    if (responsiveCenterMode) {
+      if (vertical) {
+        style.padding = `${centerPadding} 0px`;
+      } else {
+        style.padding = `0px ${centerPadding}`;
+      }
+    }
+
+    return style;
+  }, [responsiveCenterMode, vertical, centerPadding, listHeight]);
 
   // ============================================================================
   // SSR / Hydration Safe Render
@@ -739,14 +919,14 @@ export const Glide = forwardRef<GlideRef, GlideProps>(function Glide(props, ref)
   if (!initialized || !canUseDOM()) {
     return (
       <div className={`glide-slider ${className}`.trim()} style={sliderStyle}>
-        <div className="glide-list" style={listStyle}>
+        <div ref={listRef} className="glide-list" style={listStyle}>
           <div className="glide-track" style={{ display: 'flex' }}>
             {React.Children.map(children, (child, idx) => (
               <div
                 key={idx}
                 className="glide-slide"
                 style={{
-                  width: `${100 / slidesToShow}%`,
+                  width: `${100 / responsiveSlidesToShow}%`,
                   flexShrink: 0,
                 }}
               >
@@ -773,13 +953,14 @@ export const Glide = forwardRef<GlideRef, GlideProps>(function Glide(props, ref)
       onBlur={handleBlur}
     >
       {/* Previous Arrow */}
-      {arrows && !disabled && (
+      {responsiveArrows && !disabled && (
         <PrevArrow
           currentSlide={currentSlide}
           slideCount={slideCount}
-          slidesToShow={slidesToShow}
-          infinite={infinite}
-          centerMode={centerMode}
+          slidesToShow={responsiveSlidesToShow}
+          infinite={responsiveInfinite}
+          centerMode={responsiveCenterMode}
+          vertical={vertical}
           onClick={prev}
           customArrow={prevArrow}
         />
@@ -808,10 +989,10 @@ export const Glide = forwardRef<GlideRef, GlideProps>(function Glide(props, ref)
           slideCount={slideCount}
           currentSlide={currentSlide}
           targetSlide={targetSlide}
-          slidesToShow={slidesToShow}
-          slidesToScroll={slidesToScroll}
-          infinite={infinite}
-          centerMode={centerMode}
+          slidesToShow={responsiveSlidesToShow}
+          slidesToScroll={responsiveSlidesToScroll}
+          infinite={responsiveInfinite}
+          centerMode={responsiveCenterMode}
           centerPadding={centerPadding}
           fade={fade}
           vertical={vertical}
@@ -831,26 +1012,27 @@ export const Glide = forwardRef<GlideRef, GlideProps>(function Glide(props, ref)
       </div>
 
       {/* Next Arrow */}
-      {arrows && !disabled && (
+      {responsiveArrows && !disabled && (
         <NextArrow
           currentSlide={currentSlide}
           slideCount={slideCount}
-          slidesToShow={slidesToShow}
-          infinite={infinite}
-          centerMode={centerMode}
+          slidesToShow={responsiveSlidesToShow}
+          infinite={responsiveInfinite}
+          centerMode={responsiveCenterMode}
+          vertical={vertical}
           onClick={next}
           customArrow={nextArrow}
         />
       )}
 
       {/* Dots */}
-      {dots && !disabled && (
+      {responsiveDots && !disabled && (
         <Dots
           slideCount={slideCount}
-          slidesToScroll={slidesToScroll}
-          slidesToShow={slidesToShow}
+          slidesToScroll={responsiveSlidesToScroll}
+          slidesToShow={responsiveSlidesToShow}
           currentSlide={currentSlide}
-          infinite={infinite}
+          infinite={responsiveInfinite}
           onDotClick={handleDotClick}
           customPaging={customPaging}
           appendDots={appendDots}

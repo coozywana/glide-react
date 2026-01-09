@@ -16,6 +16,8 @@ export interface ArrowProps {
   infinite: boolean;
   /** Center mode enabled */
   centerMode: boolean;
+  /** Vertical mode enabled */
+  vertical: boolean;
   /** Click handler */
   onClick: () => void;
   /** Custom arrow element */
@@ -28,7 +30,7 @@ export interface ArrowProps {
 // Default Arrow SVGs
 // ============================================================================
 
-const PrevArrowSVG: React.FC<{ className?: string }> = ({ className }) => (
+const PrevArrowSVG: React.FC<{ className?: string; vertical?: boolean }> = ({ className, vertical }) => (
   <svg
     className={className}
     xmlns="http://www.w3.org/2000/svg"
@@ -44,7 +46,7 @@ const PrevArrowSVG: React.FC<{ className?: string }> = ({ className }) => (
   </svg>
 );
 
-const NextArrowSVG: React.FC<{ className?: string }> = ({ className }) => (
+const NextArrowSVG: React.FC<{ className?: string; vertical?: boolean }> = ({ className, vertical }) => (
   <svg
     className={className}
     xmlns="http://www.w3.org/2000/svg"
@@ -66,9 +68,7 @@ const NextArrowSVG: React.FC<{ className?: string }> = ({ className }) => (
 
 const baseArrowStyle: React.CSSProperties = {
   position: 'absolute',
-  top: '50%',
-  transform: 'translateY(-50%)',
-  zIndex: 10,
+  zIndex: 100,
   display: 'flex',
   alignItems: 'center',
   justifyContent: 'center',
@@ -99,6 +99,7 @@ export const PrevArrow: React.FC<Omit<ArrowProps, 'direction'>> = ({
   slidesToShow,
   infinite,
   centerMode,
+  vertical,
   onClick,
   customArrow,
 }) => {
@@ -135,13 +136,15 @@ export const PrevArrow: React.FC<Omit<ArrowProps, 'direction'>> = ({
       style={{
         ...(canGo ? baseArrowStyle : disabledArrowStyle),
         left: 10,
+        top: '50%',
+        transform: 'translateY(-50%)',
       }}
       onClick={handleClick}
       aria-label="Previous slide"
       aria-disabled={!canGo}
       disabled={!canGo}
     >
-      <PrevArrowSVG />
+      <PrevArrowSVG vertical={vertical} />
     </button>
   );
 };
@@ -156,6 +159,7 @@ export const NextArrow: React.FC<Omit<ArrowProps, 'direction'>> = ({
   slidesToShow,
   infinite,
   centerMode,
+  vertical,
   onClick,
   customArrow,
 }) => {
@@ -195,13 +199,15 @@ export const NextArrow: React.FC<Omit<ArrowProps, 'direction'>> = ({
       style={{
         ...(canGo ? baseArrowStyle : disabledArrowStyle),
         right: 10,
+        top: '50%',
+        transform: 'translateY(-50%)',
       }}
       onClick={handleClick}
       aria-label="Next slide"
       aria-disabled={!canGo}
       disabled={!canGo}
     >
-      <NextArrowSVG />
+      <NextArrowSVG vertical={vertical} />
     </button>
   );
 };

@@ -16,22 +16,6 @@
   background-color: #003d66;
 }
 
-.glide-arrow:before {
-  content: '';
-  position: absolute;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%);
-}
-
-.glide-arrow.glide-prev:before {
-  content: '←';
-}
-
-.glide-arrow.glide-next:before {
-  content: '→';
-}
-
 .glide-arrow.glide-disabled {
   opacity: 0.25;
   cursor: not-allowed;

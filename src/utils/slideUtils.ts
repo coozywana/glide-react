@@ -847,12 +847,15 @@ export const calculateSlideWidth = (
   let centerPaddingAdj = 0;
   if (centerMode) {
     const paddingValue = parseInt(centerPadding, 10) || 0;
-    centerPaddingAdj = paddingValue * 2;
     
     // Handle percentage padding
     if (centerPadding.endsWith('%')) {
-      centerPaddingAdj = (listWidth * paddingValue * 2) / 100;
+      centerPaddingAdj = (listWidth * paddingValue) / 100;
+    } else {
+      centerPaddingAdj = paddingValue;
     }
+    // Multiply by 2 for both sides
+    centerPaddingAdj = centerPaddingAdj * 2;
   }
   
   return Math.ceil((listWidth - centerPaddingAdj) / slidesToShow);

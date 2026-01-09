@@ -101,6 +101,11 @@ const getSlideStyle = (spec: {
     style.width = spec.slideWidth;
   }
 
+  // Set height in vertical mode
+  if (spec.vertical && spec.slideHeight) {
+    style.height = spec.slideHeight;
+  }
+
   // Fade mode styling
   if (spec.fade) {
     style.position = 'relative';
@@ -112,7 +117,7 @@ const getSlideStyle = (spec: {
     }
     
     style.opacity = spec.currentSlide === spec.index ? 1 : 0;
-    style.zIndex = spec.currentSlide === spec.index ? 999 : 998;
+    style.zIndex = spec.currentSlide === spec.index ? 1 : 0;
     
     if (spec.useCSS) {
       style.transition = `opacity ${spec.speed}ms ${spec.cssEase}, visibility ${spec.speed}ms ${spec.cssEase}`;
@@ -459,7 +464,7 @@ export const Track = forwardRef<HTMLDivElement, TrackProps>(function Track(
   const baseTrackStyle: CSSProperties = {
     position: 'relative',
     display: fade ? 'block' : 'flex',
-    flexDirection: vertical ? 'column' : 'row',
+    ...(fade ? {} : { flexDirection: vertical ? 'column' : 'row' }),
     ...trackStyle,
   };
 

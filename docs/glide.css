@@ -61,6 +61,10 @@
   list-style: none;
 }
 
+.glide-slider.glide-vertical .glide-dots {
+  margin-bottom: 60px;
+}
+
 .glide-dots li {
   display: inline-block;
   margin: 0 5px;
@@ -101,22 +105,4 @@
 /* Vertical Mode */
 .glide-slider.glide-vertical .glide-track {
   flex-direction: column;
-}
-
-.glide-slider.glide-vertical .glide-arrow {
-  top: auto;
-  transform: none;
-}
-
-.glide-slider.glide-vertical .glide-arrow.glide-prev {
-  top: 10px;
-  left: 50%;
-  transform: translateX(-50%);
-}
-
-.glide-slider.glide-vertical .glide-arrow.glide-next {
-  bottom: 10px;
-  left: 50%;
-  transform: translateX(-50%);
-  right: auto;
 }
