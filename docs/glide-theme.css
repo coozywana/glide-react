@@ -1,0 +1,58 @@
+/* Glide React Theme */
+
+.glide-arrow {
+  background-color: #00558B;
+  color: white;
+  width: 50px;
+  height: 50px;
+  border-radius: 50%;
+  font-size: 20px;
+  line-height: 50px;
+  text-align: center;
+  transition: background-color 0.3s ease;
+}
+
+.glide-arrow:hover {
+  background-color: #003d66;
+}
+
+.glide-arrow:before {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+}
+
+.glide-arrow.glide-prev:before {
+  content: '←';
+}
+
+.glide-arrow.glide-next:before {
+  content: '→';
+}
+
+.glide-arrow.glide-disabled {
+  opacity: 0.25;
+  cursor: not-allowed;
+}
+
+.glide-dots {
+  padding: 10px 0;
+}
+
+.glide-dots li button {
+  transition: all 0.3s ease;
+}
+
+.glide-dots li button:hover {
+  background-color: #999;
+}
+
+.glide-dots li.glide-active button {
+  background-color: #00558B;
+}
+
+.glide-dots li.glide-active button:hover {
+  background-color: #003d66;
+}

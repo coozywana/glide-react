@@ -1,0 +1,250 @@
+/* Documentation Page Styles */
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',
+    'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue',
+    sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  background: #f5f5f5;
+}
+
+code {
+  font-family: source-code-pro, Menlo, Monaco, Consolas, 'Courier New', monospace;
+}
+
+.title-bar {
+  background: linear-gradient(135deg, #00558B 0%, #003d66 100%);
+  color: white;
+  padding: 30px 20px;
+  text-align: center;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+}
+
+.title-bar .title {
+  font-size: 48px;
+  font-weight: bold;
+  letter-spacing: -1px;
+}
+
+.title-bar .subtitle {
+  font-size: 18px;
+  margin-top: 10px;
+  opacity: 0.9;
+}
+
+.content {
+  padding: 40px 20px;
+  margin: auto;
+  max-width: 1200px;
+}
+
+.demo-section {
+  background: white;
+  border-radius: 8px;
+  padding: 30px;
+  margin-bottom: 40px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+}
+
+.demo-section h2 {
+  margin-top: 0;
+  margin-bottom: 10px;
+  font-size: 28px;
+  color: #00558B;
+  border-bottom: 2px solid #00558B;
+  padding-bottom: 10px;
+}
+
+.demo-section .description {
+  color: #666;
+  margin-bottom: 25px;
+  line-height: 1.6;
+}
+
+.demo-section pre {
+  background: #f8f8f8;
+  border: 1px solid #e0e0e0;
+  border-radius: 4px;
+  padding: 15px;
+  overflow-x: auto;
+  margin: 20px 0;
+}
+
+.demo-section code {
+  background: #f8f8f8;
+  padding: 2px 6px;
+  border-radius: 3px;
+  font-size: 14px;
+}
+
+/* Code Block Styles */
+.code-block-wrapper {
+  margin: 20px 0;
+  border-radius: 4px;
+  overflow: hidden;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.code-block-header {
+  background: #1e1e1e;
+  padding: 8px 12px;
+  display: flex;
+  justify-content: flex-end;
+  align-items: center;
+}
+
+.copy-button {
+  background: #00558B;
+  color: white;
+  border: none;
+  padding: 6px 16px;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 13px;
+  font-weight: 500;
+  transition: all 0.2s ease;
+}
+
+.copy-button:hover {
+  background: #003d66;
+  transform: translateY(-1px);
+}
+
+.copy-button:active {
+  transform: translateY(0);
+}
+
+/* Slide Styles for Demos */
+h3 {
+  background: #00558B;
+  color: #fff;
+  font-size: 36px;
+  line-height: 100px;
+  margin: 10px;
+  padding: 2%;
+  position: relative;
+  text-align: center;
+  border-radius: 4px;
+}
+
+.slider-container {
+  margin: 30px 0;
+}
+
+/* Center Mode specific styles */
+.center .glide-slide {
+  opacity: 0.6;
+  transition: all 300ms ease;
+  transform: scale(0.9);
+}
+
+.center .glide-slide.glide-active {
+  opacity: 1;
+  transform: scale(1);
+}
+
+.center .glide-slide.glide-center {
+  color: #e67e22;
+  opacity: 1;
+  transform: scale(1.08);
+}
+
+/* Variable Width styles */
+.variable-width .glide-slide p {
+  background: #00558B;
+  height: 100px;
+  color: #fff;
+  margin: 5px;
+  line-height: 100px;
+  text-align: center;
+  border-radius: 4px;
+}
+
+/* Image slides */
+.glide-slide .image {
+  padding: 10px;
+}
+
+.glide-slide img {
+  border: 5px solid #FFF;
+  display: block;
+  margin: auto;
+  max-width: 80%;
+  border-radius: 4px;
+}
+
+.glide-slide img.glide-loading {
+  border: 0;
+}
+
+/* Vertical Mode */
+.glide-slider.glide-vertical {
+  height: 400px;
+}
+
+.glide-slider.glide-vertical .glide-slide {
+  height: 180px;
+}
+
+/* Custom button styles */
+.button-group {
+  text-align: center;
+  margin: 20px 0;
+}
+
+.button-group button {
+  background: #00558B;
+  color: white;
+  border: none;
+  padding: 10px 20px;
+  margin: 0 5px;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 14px;
+  transition: background-color 0.3s ease;
+}
+
+.button-group button:hover {
+  background: #003d66;
+}
+
+.button-group button:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .title-bar .title {
+    font-size: 32px;
+  }
+  
+  h3 {
+    font-size: 24px;
+    line-height: 80px;
+  }
+  
+  .demo-section {
+    padding: 20px;
+  }
+  
+  .demo-section h2 {
+    font-size: 24px;
+  }
+  
+  .content {
+    padding: 20px 10px;
+  }
+}
+
+@media (min-width: 1024px) {
+  .content {
+    max-width: 1400px;
+  }
+}

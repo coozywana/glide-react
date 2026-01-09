@@ -1,0 +1,122 @@
+/* Glide React Core Styles */
+
+.glide-slider {
+  position: relative;
+  display: block;
+  box-sizing: border-box;
+  user-select: none;
+  touch-action: pan-y;
+}
+
+.glide-list {
+  position: relative;
+  display: block;
+  overflow: hidden;
+  margin: 0;
+  padding: 0;
+}
+
+.glide-track {
+  position: relative;
+  display: flex;
+  width: 100%;
+}
+
+.glide-slide {
+  position: relative;
+  float: left;
+  height: 100%;
+  min-height: 1px;
+}
+
+.glide-slide img {
+  display: block;
+  width: 100%;
+}
+
+.glide-arrow {
+  display: block;
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  cursor: pointer;
+  border: none;
+  outline: none;
+  z-index: 1;
+}
+
+.glide-arrow.glide-prev {
+  left: 10px;
+}
+
+.glide-arrow.glide-next {
+  right: 10px;
+}
+
+.glide-dots {
+  display: flex !important;
+  justify-content: center;
+  margin: 20px 0;
+  padding: 0;
+  list-style: none;
+}
+
+.glide-dots li {
+  display: inline-block;
+  margin: 0 5px;
+}
+
+.glide-dots li button {
+  display: block;
+  width: 12px;
+  height: 12px;
+  padding: 0;
+  border: none;
+  border-radius: 50%;
+  background-color: #d4d4d4;
+  cursor: pointer;
+  font-size: 0;
+  line-height: 0;
+}
+
+.glide-dots li.glide-active button {
+  background-color: #000;
+}
+
+/* Fade Effect */
+.glide-slider.glide-fade .glide-slide {
+  position: absolute;
+  top: 0;
+  left: 0;
+  opacity: 0;
+  transition: opacity 0.5s ease;
+  z-index: 0;
+}
+
+.glide-slider.glide-fade .glide-slide.glide-active {
+  opacity: 1;
+  z-index: 1;
+}
+
+/* Vertical Mode */
+.glide-slider.glide-vertical .glide-track {
+  flex-direction: column;
+}
+
+.glide-slider.glide-vertical .glide-arrow {
+  top: auto;
+  transform: none;
+}
+
+.glide-slider.glide-vertical .glide-arrow.glide-prev {
+  top: 10px;
+  left: 50%;
+  transform: translateX(-50%);
+}
+
+.glide-slider.glide-vertical .glide-arrow.glide-next {
+  bottom: 10px;
+  left: 50%;
+  transform: translateX(-50%);
+  right: auto;
+}
