@@ -32,6 +32,16 @@ yarn add glide-react
 pnpm add glide-react
 ```
 
+## Styling
+
+Import the default styles (optional):
+
+```tsx
+import 'glide-react/dist/glide.css';
+// or import the theme variant
+import 'glide-react/dist/glide-theme.css';
+```
+
 ## Quick Start
 
 ```tsx

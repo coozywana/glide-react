@@ -19,6 +19,7 @@
   ],
   "scripts": {
     "build": "tsup src/index.tsx --format cjs,esm --dts --clean",
+    "postbuild": "cp src/styles/glide.css dist/glide.css && cp src/styles/glide-theme.css dist/glide-theme.css",
     "dev": "tsup src/index.tsx --format cjs,esm --dts --watch",
     "lint": "eslint src --ext .ts,.tsx",
     "typecheck": "tsc --noEmit",
